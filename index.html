@@ -1,0 +1,115 @@
+<html>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="giveItStyle.css">
+</head>
+
+<body ng-app="challenge" class="ng-scope">
+
+<div ng-controller="controller" class="wrapper">
+  <div class="puzzle-frame" ng-class="{solved:solved}">
+    <div class="puzzle-row">
+      <div class="puzzle-piece" ng-class="{selected:isSelected(1)}" ng-click="selectPiece(1)">{{val1}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(2)}" ng-click="selectPiece(2)">{{val2}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(3)}" ng-click="selectPiece(3)">{{val3}}</div>
+    </div>
+    <div class="puzzle-row">
+      <div class="puzzle-piece" ng-class="{selected:isSelected(4)}" ng-click="selectPiece(4)">{{val4}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(5)}" ng-click="selectPiece(5)">{{val5}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(6)}" ng-click="selectPiece(6)">{{val6}}</div>
+    </div>
+    <div class="puzzle-row">
+      <div class="puzzle-piece" ng-class="{selected:isSelected(7)}" ng-click="selectPiece(7)">{{val7}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(8)}" ng-click="selectPiece(8)">{{val8}}</div>
+      <div class="puzzle-piece" ng-class="{selected:isSelected(9)}" ng-click="selectPiece(9)">{{val9}}</div>
+    </div>
+  </div>
+  <div class="result">
+    <p class="instructions" ng-show="!solved">Click any two adjacent pieces to swap them.</p>
+    <p class="plaque" ng-show="solved">You Win!</p>
+  </div>
+</div>
+
+<script>
+angular.module('challenge', [])
+  .controller('controller', ['$scope', function($scope) {
+    $scope.val1 = 'a';
+    $scope.val2 = 'b';
+    $scope.val3 = 'c';
+    $scope.val4 = 'd';
+    $scope.val5 = 'e';
+    $scope.val6 = 'f';
+    $scope.val7 = 'g';
+    $scope.val8 = 'h';
+    $scope.val9 = 'i';
+
+    $scope.grid = [ [$scope.val1, $scope.val2, $scope.val3],
+      [$scope.val4, $scope.val5, $scope.val6],
+      [$scope.val7, $scope.val8, $scope.val9] ];
+
+    $scope.solved = false;
+
+    var listSize = 9;
+    var firstSelected = 0;
+    var secondSelected = 0;
+
+    var swapPieces = function(pieceA, pieceB) {
+      var tmp = $scope['val'+pieceA];
+      $scope['val'+pieceA] = $scope['val'+pieceB];
+      $scope['val'+pieceB] = tmp;
+    }
+
+    // Fisher Yates Shuffle
+    for (var i=listSize; i>0; i--) {
+      var j = Math.floor(Math.random()*i)+1;
+      swapPieces(i,j);
+    }
+
+    var validate = function() {
+      if($scope.grid[0][0] == $scope.val1 &&
+         $scope.grid[0][1] == $scope.val2 &&
+         $scope.grid[0][2] == $scope.val3 &&
+         $scope.grid[1][0] == $scope.val4 &&
+         $scope.grid[1][1] == $scope.val5 &&
+         $scope.grid[1][2] == $scope.val6 &&
+         $scope.grid[2][0] == $scope.val7 &&
+         $scope.grid[2][1] == $scope.val8 &&
+         $scope.grid[2][2] == $scope.val9) {
+            $scope.solved = true;
+      }
+    };
+
+    $scope.isSelected = function(pos) {
+      if (firstSelected === pos || secondSelected === pos) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.selectPiece = function(pos) {
+      if ($scope.solved) return;
+      if (firstSelected === 0) {
+        firstSelected = pos;
+      } else if (firstSelected === pos) {
+        firstSelected = 0;
+      } else if (secondSelected === 0) {
+        secondSelected = pos;
+
+        // Check if selected pieces are adjacent
+        var offset = Math.abs(firstSelected-secondSelected);
+        if (offset === 1 || offset === 3) {
+          swapPieces(firstSelected, secondSelected);
+          validate();
+        }
+
+        // reset selection
+        firstSelected = 0;
+        secondSelected = 0;
+      }
+    }
+
+  }]);
+</script>
+
+</body>
+</html>
